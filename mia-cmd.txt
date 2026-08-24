@@ -1,0 +1,36 @@
+#!/bin/bash
+exec >/tmp/mia-out.txt 2>&1
+echo "=== INICIO $(date -u) ==="
+hostname
+uname -r
+echo "--- IP ---"
+ip -4 addr show | grep inet
+echo "--- PORTAS ---"
+ss -tlnp | head -25
+echo "--- SSHD CONF D ---"
+ls -la /etc/ssh/sshd_config.d/
+cat /etc/ssh/sshd_config.d/*.conf 2>/dev/null
+echo "--- INCLUDE NO MAIN ---"
+grep -n Include /etc/ssh/sshd_config
+echo "--- AUTHKEYS ---"
+ls -la /root/.ssh/
+wc -c /root/.ssh/authorized_keys
+echo "--- STATUS SSH ---"
+systemctl status ssh --no-pager | head -14
+echo "--- SSHD -T (filtros) ---"
+sshd -T 2>&1 | grep -Ei 'permitroot|passwordauth|pubkeyauth|authorizedkeysfile|^port'
+echo "--- JOURNAL SSH ---"
+journalctl -u ssh -n 40 --no-pager 2>/dev/null | tail -40
+echo "--- REPARO ---"
+printf 'PermitRootLogin yes\nPasswordAuthentication yes\nPubkeyAuthentication yes\nUsePAM yes\n' > /etc/ssh/sshd_config.d/99-mia.conf
+grep -q 'Include /etc/ssh/sshd_config.d' /etc/ssh/sshd_config || sed -i '1i Include /etc/ssh/sshd_config.d/*.conf' /etc/ssh/sshd_config
+chmod 700 /root/.ssh 2>/dev/null
+chmod 600 /root/.ssh/authorized_keys 2>/dev/null
+systemctl restart ssh || service ssh restart
+sleep 2
+echo "ativo: $(systemctl is-active ssh)"
+ss -tlnp | grep ':22 '
+echo "=== FIM ==="
+cd /tmp
+nohup python3 -m http.server 8091 >/dev/null 2>&1 &
+echo SERVIDOR_DE_LOG_ATIVO_PORTA_8091
