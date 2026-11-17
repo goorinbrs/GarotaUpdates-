@@ -1,7 +1,7 @@
-﻿# GAROTA GPS - Espelho Estavel de Atualizacoes
+﻿# GAROTA MACHINE - Espelho Estavel de Atualizacoes
 
-Este repositorio serve como espelho estavel para o canal de atualizacoes do GAROTA GPS.
+Este repositorio serve como espelho estavel de compatibilidade para o canal de atualizacoes da GAROTA MACHINE.
 
 - manifest.json - manifest de versao (endereco fixo: releases/latest/download/manifest.json)
-- GAROTA-GPS-<versao>-win-x64.zip - pacote de atualizacao
+- GAROTA-MACHINE-<versao>-win-x64.zip - pacote de atualizacao
 
